@@ -13,6 +13,21 @@ const App = () => {
     const handleUp = () => document.body.classList.remove('cursor-active');
     document.addEventListener('mousedown', handleDown);
     document.addEventListener('mouseup', handleUp);
+
+    // Cleanup function for performance optimization
+    const cleanup = () => {
+      // Clear unused event listeners
+      document.removeEventListener('mousedown', handleDown);
+      document.removeEventListener('mouseup', handleUp);
+      
+      // Force garbage collection if available
+      if (window.gc) {
+        window.gc();
+      }
+    };
+
+    // Cleanup on page unload
+    window.addEventListener('beforeunload', cleanup);
   }
 
   return (

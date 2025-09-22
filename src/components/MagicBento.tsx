@@ -1,4 +1,5 @@
 import { useRef, useEffect, useCallback, useState, memo, ReactNode } from 'react';
+import { motion } from 'framer-motion';
 import { gsap } from 'gsap';
 import './MagicBento.css';
 
@@ -524,6 +525,26 @@ const MagicBento = memo<MagicBentoProps>(({
     return () => clearTimeout(id);
   }, []);
 
+  // Cleanup unused animations after tiles are loaded
+  useEffect(() => {
+    if (effectsEnabled) {
+      const cleanupTimer = setTimeout(() => {
+        // Kill any unused GSAP animations
+        if (window.gsap) {
+          window.gsap.killTweensOf('.card:not(:hover)');
+          window.gsap.killTweensOf('.particle:not(.active)');
+        }
+
+        // Force garbage collection
+        if (window.gc) {
+          window.gc();
+        }
+      }, 3000); // Wait 3 seconds after effects are enabled
+
+      return () => clearTimeout(cleanupTimer);
+    }
+  }, [effectsEnabled]);
+
   return (
     <>
       {enableSpotlight && effectsEnabled && (
@@ -549,37 +570,56 @@ const MagicBento = memo<MagicBentoProps>(({
 
           if (enableStars) {
             return (
-              <ParticleCard
+              <motion.div
                 key={index}
-                {...cardProps}
-                disableAnimations={shouldDisableAnimations}
-                particleCount={particleCount}
-                glowColor={glowColor}
-                enableTilt={enableTilt}
-                clickEffect={clickEffect}
-                enableMagnetism={enableMagnetism}
-                onClick={(e) => {
-                  if (onCardClick) {
-                    onCardClick(card.label.toLowerCase(), e);
-                  }
+                initial={{ opacity: 0, y: 30, scale: 0.9 }}
+                animate={{ opacity: 1, y: 0, scale: 1 }}
+                transition={{ 
+                  duration: 0.6, 
+                  delay: index * 0.1,
+                  ease: "easeOut"
                 }}
               >
-                <div className="card__header">
-                  <div className="card__label">{card.label}</div>
-                </div>
-                <div className="card__content">
-                  <h2 className="card__title">{card.title}</h2>
-                  <p className="card__description">{card.description}</p>
-                </div>
-              </ParticleCard>
+                <ParticleCard
+                  {...cardProps}
+                  disableAnimations={shouldDisableAnimations}
+                  particleCount={particleCount}
+                  glowColor={glowColor}
+                  enableTilt={enableTilt}
+                  clickEffect={clickEffect}
+                  enableMagnetism={enableMagnetism}
+                  onClick={(e) => {
+                    if (onCardClick) {
+                      onCardClick(card.label.toLowerCase(), e);
+                    }
+                  }}
+                >
+                  <div className="card__header">
+                    <div className="card__label">{card.label}</div>
+                  </div>
+                  <div className="card__content">
+                    <h2 className="card__title">{card.title}</h2>
+                    <p className="card__description">{card.description}</p>
+                  </div>
+                </ParticleCard>
+              </motion.div>
             );
           }
 
           return (
-            <div
+            <motion.div
               key={index}
-              {...cardProps}
-              ref={el => {
+              initial={{ opacity: 0, y: 30, scale: 0.9 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              transition={{ 
+                duration: 0.6, 
+                delay: index * 0.1,
+                ease: "easeOut"
+              }}
+            >
+              <div
+                {...cardProps}
+                ref={el => {
                 if (!el) return;
 
                 const handleMouseMove = e => {
@@ -691,14 +731,15 @@ const MagicBento = memo<MagicBentoProps>(({
                 el.addEventListener('click', handleClick);
               }}
             >
-              <div className="card__header">
-                <div className="card__label">{card.label}</div>
+                <div className="card__header">
+                  <div className="card__label">{card.label}</div>
+                </div>
+                <div className="card__content">
+                  <h2 className="card__title">{card.title}</h2>
+                  <p className="card__description">{card.description}</p>
+                </div>
               </div>
-              <div className="card__content">
-                <h2 className="card__title">{card.title}</h2>
-                <p className="card__description">{card.description}</p>
-              </div>
-            </div>
+            </motion.div>
           );
         })}
       </BentoCardGrid>

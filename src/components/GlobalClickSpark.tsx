@@ -125,10 +125,20 @@ const GlobalClickSpark = ({
 
     document.addEventListener('click', handleGlobalClick);
 
+    // Cleanup old sparks periodically to prevent memory leaks
+    const cleanupInterval = setInterval(() => {
+      const now = performance.now();
+      sparksRef.current = sparksRef.current.filter(spark => {
+        const elapsed = now - spark.startTime;
+        return elapsed < duration * 2; // Keep sparks for 2x duration max
+      });
+    }, 1000);
+
     return () => {
       document.removeEventListener('click', handleGlobalClick);
+      clearInterval(cleanupInterval);
     };
-  }, [sparkCount]);
+  }, [sparkCount, duration]);
 
   return (
     <div style={{ position: 'relative', width: '100%', height: '100%' }}>

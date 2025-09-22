@@ -643,6 +643,43 @@ const CafeInterior = memo(() => {
     return () => clearTimeout(timer);
   }, []);
 
+  // Cleanup old components and optimize performance after tiles load
+  useEffect(() => {
+    if (state.phase === 'portfolio') {
+      // Delay cleanup to allow tiles to fully animate in
+      const cleanupTimer = setTimeout(() => {
+        // Force garbage collection of unused components
+        if (window.gc) {
+          window.gc();
+        }
+
+        // Clear any cached images that are no longer needed
+        const images = document.querySelectorAll('img');
+        images.forEach(img => {
+          if (img.src && !img.src.includes('profile-picture') && !img.src.includes('cafe-interior')) {
+            img.removeAttribute('src');
+          }
+        });
+
+        // Clear unused event listeners
+        const oldListeners = document.querySelectorAll('[data-cleanup="true"]');
+        oldListeners.forEach(el => el.remove());
+
+        // Force a layout recalculation to optimize rendering
+        document.body.offsetHeight;
+
+        // Clear any unused GSAP animations
+        if (window.gsap) {
+          window.gsap.killTweensOf('.card:not(.card--active)');
+        }
+
+        console.log('Performance cleanup completed');
+      }, 2000); // Wait 2 seconds after portfolio phase starts
+
+      return () => clearTimeout(cleanupTimer);
+    }
+  }, [state.phase]);
+
   // Optimized scroll listeners
   useEffect(() => {
     if (state.phase !== 'welcome') return;
@@ -895,7 +932,16 @@ const CafeInterior = memo(() => {
         </motion.div>
 
           {/* Magic Bento Grid */}
-          <div className="max-w-6xl mx-auto mr-8 -mt-8">
+          <motion.div 
+            className="max-w-6xl mx-auto mr-8 -mt-8"
+            initial={{ opacity: 0, y: 50 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ 
+              duration: 0.8, 
+              ease: "easeOut",
+              delay: 0.3
+            }}
+          >
             <MagicBento 
               textAutoHide={true}
               enableStars={true}
@@ -909,7 +955,7 @@ const CafeInterior = memo(() => {
               glowColor="230, 180, 102"
               onCardClick={handleTileClick}
             />
-        </div>
+          </motion.div>
 
         </div>
       )}
