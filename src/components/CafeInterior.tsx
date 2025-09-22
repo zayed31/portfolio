@@ -829,7 +829,7 @@ const CafeInterior = memo(() => {
             transition={{ duration: 0.5 }}
             className="absolute inset-0 flex items-center justify-center z-30"
           >
-            <div className="text-center bg-cafe-cream/98 p-8 rounded-2xl shadow-lg border-2 border-cafe-latte/50 max-w-2xl mx-4">
+            <div className="text-center bg-cafe-cream p-8 rounded-2xl shadow-lg border-2 border-cafe-latte/50 max-w-2xl mx-4">
               <motion.div
                 initial={{ scale: 0.9 }}
                 animate={{ scale: 1 }}
