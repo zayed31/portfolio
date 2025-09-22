@@ -64,12 +64,6 @@ const cardData = [
   },
   {
     color: 'linear-gradient(135deg, #F5E9C6 0%, #E6B566 100%)', // Beige gradient
-    title: 'Brewing Tools: Technical Skills',
-    description: 'Tools of the Trade',
-    label: 'Skills'
-  },
-  {
-    color: 'linear-gradient(135deg, #F5E9C6 0%, #E6B566 100%)', // Beige gradient
     title: 'Coffee Chat: Let\'s Connect',
     description: 'Let\'s Connect',
     label: 'Contact'
@@ -485,8 +479,8 @@ const GlobalSpotlight = memo<GlobalSpotlightProps>(({
   return null;
 });
 
-const BentoCardGrid = ({ children, gridRef }) => (
-  <div className="card-grid bento-section" ref={gridRef}>
+const BentoCardGrid = ({ children, gridRef, effectsEnabled = false }) => (
+  <div className={`card-grid bento-section ${effectsEnabled ? 'effects-enabled' : ''}`} ref={gridRef}>
     {children}
   </div>
 );
@@ -506,7 +500,7 @@ const useMobileDetection = () => {
   return isMobile;
 };
 
-const MagicBento = memo<MagicBentoProps>(({
+const MagicBento = memo<MagicBentoProps>(({ 
   textAutoHide = true,
   enableStars = true,
   enableSpotlight = true,
@@ -523,10 +517,16 @@ const MagicBento = memo<MagicBentoProps>(({
   const gridRef = useRef(null);
   const isMobile = useMobileDetection();
   const shouldDisableAnimations = disableAnimations || isMobile;
+  const [effectsEnabled, setEffectsEnabled] = useState(false);
+
+  useEffect(() => {
+    const id = setTimeout(() => setEffectsEnabled(true), 400);
+    return () => clearTimeout(id);
+  }, []);
 
   return (
     <>
-      {enableSpotlight && (
+      {enableSpotlight && effectsEnabled && (
         <GlobalSpotlight
           gridRef={gridRef}
           disableAnimations={shouldDisableAnimations}
@@ -536,7 +536,7 @@ const MagicBento = memo<MagicBentoProps>(({
         />
       )}
 
-      <BentoCardGrid gridRef={gridRef}>
+      <BentoCardGrid gridRef={gridRef} effectsEnabled={effectsEnabled}>
         {cardData.map((card, index) => {
           const baseClassName = `card ${textAutoHide ? 'card--text-autohide' : ''} ${enableBorderGlow ? 'card--border-glow' : ''}`;
           const cardProps = {

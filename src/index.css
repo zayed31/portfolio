@@ -31,6 +31,23 @@
     overflow: hidden;
   }
 
+  /* Coffee cursor (normal + click tilt). Place icons in /public
+     e.g., /coffee-cursor.png and /coffee-cursor-tilt.png */
+  body.coffee-cursor {
+    cursor: url('/coffee-cursor.png') 16 16, auto !important;
+  }
+  body.coffee-cursor.cursor-active {
+    cursor: url('/coffee-cursor-tilt.png') 16 16, auto !important;
+  }
+
+  /* Override all interactive elements to use coffee cursor */
+  body.coffee-cursor * {
+    cursor: url('/coffee-cursor.png') 16 16, auto !important;
+  }
+  body.coffee-cursor.cursor-active * {
+    cursor: url('/coffee-cursor-tilt.png') 16 16, auto !important;
+  }
+
   html {
     /* Prevent all overflow at root level */
     overflow: hidden;
@@ -54,6 +71,35 @@
     will-change: transform;
     contain: layout style paint;
   }
+}
+
+/* Custom Scrollbar - Café theme */
+/* Chrome, Edge, Safari */
+::-webkit-scrollbar {
+  width: 10px; /* Slim and neat */
+  height: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f5f0e6; /* Cream coffee background */
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #8b5e3c; /* Rich coffee brown */
+  border-radius: 10px;
+  border: 2px solid #f5f0e6; /* Foam effect */
+  box-shadow: inset 0 0 4px rgba(0,0,0,0.2);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #6f4427; /* Dark roast on hover */
+}
+
+/* Firefox */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: #8b5e3c #f5f0e6; /* thumb | track */
 }
 
 /* Zayed's Café Design System - Warm coffee shop aesthetic
