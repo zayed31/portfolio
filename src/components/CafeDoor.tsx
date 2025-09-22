@@ -22,13 +22,17 @@ const CafeDoor = memo(({ onEnter }: CafeDoorProps) => {
   useEffect(() => {
     // Initialize Unicorn Studio
     if (!window.UnicornStudio) {
-      window.UnicornStudio = { isInitialized: false };
+      window.UnicornStudio = { 
+        isInitialized: false,
+        init: () => {
+          window.UnicornStudio.isInitialized = true;
+        }
+      };
       const script = document.createElement("script");
       script.src = "https://cdn.jsdelivr.net/gh/hiunicornstudio/unicornstudio.js@v1.4.30/dist/unicornStudio.umd.js";
       script.onload = function() {
         if (!window.UnicornStudio.isInitialized) {
-          UnicornStudio.init();
-          window.UnicornStudio.isInitialized = true;
+          window.UnicornStudio.init();
         }
       };
       (document.head || document.body).appendChild(script);

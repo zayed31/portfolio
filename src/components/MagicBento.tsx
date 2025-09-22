@@ -529,10 +529,12 @@ const MagicBento = memo<MagicBentoProps>(({
   useEffect(() => {
     if (effectsEnabled) {
       const cleanupTimer = setTimeout(() => {
-        // Kill any unused GSAP animations
+        // Kill any unused GSAP animations (but protect important elements)
         if (window.gsap) {
           window.gsap.killTweensOf('.card:not(:hover)');
           window.gsap.killTweensOf('.particle:not(.active)');
+          // Don't kill animations on protected elements
+          window.gsap.killTweensOf('img:not([data-protected="true"])');
         }
 
         // Force garbage collection

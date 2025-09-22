@@ -398,6 +398,7 @@ interface AppState {
   expandedTile: string | null;
   expandedAchievement: string[];
   expandedProjectId?: string | null;
+  showCat: boolean;
   contactForm: {
     name: string;
     email: string;
@@ -415,6 +416,7 @@ const CafeInterior = memo(() => {
     expandedTile: null,
     expandedAchievement: [],
     expandedProjectId: null,
+    showCat: false,
     contactForm: {
       name: "",
       email: "",
@@ -427,6 +429,7 @@ const CafeInterior = memo(() => {
   const videoRef = useRef<HTMLVideoElement>(null);
   const scrollTimeoutRef = useRef<number | null>(null);
   const [tileRect, setTileRect] = useState<{ x: number; y: number; width: number; height: number } | null>(null);
+  const [catImageLoaded, setCatImageLoaded] = useState(false);
 
 
   // Optimized scroll handler with throttling
@@ -451,7 +454,7 @@ const CafeInterior = memo(() => {
 
       // Start transition sequence
       setTimeout(() => {
-        setState(prev => ({ ...prev, showVideo: true }));
+        setState(prev => ({ ...prev, showVideo: true, showCat: true }));
       }, 500);
       
       scrollTimeoutRef.current = null;
@@ -465,6 +468,7 @@ const CafeInterior = memo(() => {
       showVideo: false,
       showSecondImage: true,
       phase: 'portfolio'
+      // showCat remains true from previous state
     }));
 
     // Proactively unmount listeners and heavy layers from welcome/transition
@@ -634,6 +638,18 @@ const CafeInterior = memo(() => {
     };
   }, [state.expandedTile]);
 
+  // Preload cat image
+  useEffect(() => {
+    const img = new Image();
+    img.onload = () => {
+      setCatImageLoaded(true);
+    };
+    img.onerror = () => {
+      setCatImageLoaded(false);
+    };
+    img.src = '/Cool-Cat.png';
+  }, []);
+
   // Initial welcome sequence
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -653,10 +669,14 @@ const CafeInterior = memo(() => {
           window.gc();
         }
 
-        // Clear any cached images that are no longer needed
+        // Clear any cached images that are no longer needed (but protect important ones)
         const images = document.querySelectorAll('img');
         images.forEach(img => {
-          if (img.src && !img.src.includes('profile-picture') && !img.src.includes('cafe-interior')) {
+          if (img.src && 
+              !img.src.includes('profile-picture') && 
+              !img.src.includes('cafe-interior') &&
+              !img.src.includes('Cool-Cat') &&
+              !img.hasAttribute('data-protected')) {
             img.removeAttribute('src');
           }
         });
@@ -673,7 +693,6 @@ const CafeInterior = memo(() => {
           window.gsap.killTweensOf('.card:not(.card--active)');
         }
 
-        console.log('Performance cleanup completed');
       }, 2000); // Wait 2 seconds after portfolio phase starts
 
       return () => clearTimeout(cleanupTimer);
@@ -818,9 +837,12 @@ const CafeInterior = memo(() => {
     <div className="h-screen bg-gradient-cream relative overflow-hidden">
       {/* Initial Background - Only show when second image is not loaded */}
       {!state.showSecondImage && (
-      <div 
+        <motion.div
         className="absolute inset-0 bg-cover bg-center transition-opacity duration-500 will-change-transform"
         style={backgroundStyles.initial}
+          initial={{ opacity: 0, scale: 1.1 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 1.2, ease: "easeOut" }}
       />
       )}
       
@@ -842,7 +864,49 @@ const CafeInterior = memo(() => {
           >
             <source src="/chalkboard-zoom.mp4" type="video/mp4" />
           </video>
+          
         </div>
+      )}
+
+      {/* Cool Cat - Persists after video ends */}
+      {state.showCat && (
+        <motion.div
+          className="absolute pointer-events-none"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 1, delay: 0.5 }}
+          style={{
+            bottom: '-65px',    // Adjust this value to move up/down
+            right: '-29px',     // Adjust this value to move left/right
+            zIndex: 25,
+            width: '200px',
+            height: '200px'
+
+          }}
+        >
+          {catImageLoaded ? (
+            <img
+              src="/Cool-Cat.png"
+              alt="Cool Cat"
+              className="w-full h-full object-contain"
+              loading="eager"
+              data-protected="true"
+              data-cat-image="true"
+              onError={(e) => {
+                // Show fallback cat emoji
+                e.currentTarget.style.display = 'none';
+                const fallback = document.createElement('div');
+                fallback.className = 'w-full h-full flex items-center justify-center text-6xl';
+                fallback.textContent = '🐱';
+                e.currentTarget.parentElement?.appendChild(fallback);
+              }}
+            />
+          ) : (
+            <div className="w-full h-full flex items-center justify-center text-6xl">
+              🐱
+            </div>
+          )}
+        </motion.div>
       )}
 
       {/* Final Background - Chalkboard interior after video */}
@@ -924,7 +988,7 @@ const CafeInterior = memo(() => {
             initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
-            className="text-left mb-16 ml-5 mt-5"
+            className="text-left mb-16 ml-0 mt-10"
           >
             <p className="font-chalkboard text-cafe-warm text-3xl ml-60 whitespace-nowrap font-bold">
               Browse through my portfolio like exploring a café menu. Each section tells a story of passion, skill, and creativity.
@@ -1124,17 +1188,7 @@ const CafeInterior = memo(() => {
                             </p>
                           </motion.div>
                           
-                          <div className="flex gap-4 mt-6">
-                            <a href={`https://${section.content.profile.social.linkedin}`} className="text-cafe-warm hover:text-cafe-espresso transition-colors">
-                              LinkedIn
-                            </a>
-                            <a href={`https://${section.content.profile.social.github}`} className="text-cafe-warm hover:text-cafe-espresso transition-colors">
-                              GitHub
-                            </a>
-                            <a href={`mailto:${section.content.profile.social.email}`} className="text-cafe-warm hover:text-cafe-espresso transition-colors">
-                              Email
-                            </a>
-                          </div>
+                         
                         </motion.div>
 
                         {/* Timeline Component */}
@@ -1672,27 +1726,27 @@ const CafeInterior = memo(() => {
                       </div>
                     ) : (
                       <div className="bg-white/30 rounded-xl p-6 border border-white/40">
-                        <h2 className="font-chalkboard text-2xl font-bold text-cafe-espresso mb-4">
-                          Details
-                        </h2>
-                        <p className="font-body text-cafe-mocha text-lg leading-relaxed mb-6">
-                          {section.content.description}
-                        </p>
-                        <div className="space-y-3">
-                          {section.content.details.map((detail, index) => (
+                            <h2 className="font-chalkboard text-2xl font-bold text-cafe-espresso mb-4">
+                              Details
+                            </h2>
+                            <p className="font-body text-cafe-mocha text-lg leading-relaxed mb-6">
+                              {section.content.description}
+                            </p>
+                            <div className="space-y-3">
+                              {section.content.details.map((detail, index) => (
                             <motion.div
-                              key={index}
+                                  key={index}
                               initial={{ opacity: 0, x: -20 }}
                               animate={{ opacity: 1, x: 0 }}
                               transition={{ delay: 0.3 + index * 0.1 }}
-                              className="flex items-start gap-3"
-                            >
-                              <div className="w-2 h-2 bg-cafe-warm rounded-full mt-2 flex-shrink-0" />
-                              <p className="font-body text-cafe-mocha">
-                                {detail}
-                              </p>
+                                  className="flex items-start gap-3"
+                                >
+                                  <div className="w-2 h-2 bg-cafe-warm rounded-full mt-2 flex-shrink-0" />
+                                  <p className="font-body text-cafe-mocha">
+                                    {detail}
+                                  </p>
                             </motion.div>
-                          ))}
+                              ))}
                         </div>
                       </div>
                     )}
