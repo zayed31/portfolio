@@ -1,0 +1,167 @@
+@import url('https://fonts.googleapis.com/css2?family=Amatic+SC:wght@400;700&family=Patrick+Hand:wght@400&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Global Performance Optimizations */
+@layer base {
+  * {
+    /* Enable hardware acceleration for better performance */
+    -webkit-transform: translateZ(0);
+    transform: translateZ(0);
+    -webkit-backface-visibility: hidden;
+    backface-visibility: hidden;
+  }
+
+  body {
+    /* Optimize scrolling performance */
+    -webkit-overflow-scrolling: touch;
+    overflow-scrolling: touch;
+    /* Enable smooth scrolling */
+    scroll-behavior: smooth;
+    /* Optimize text rendering */
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeSpeed;
+    /* Force hardware acceleration */
+    transform: translateZ(0);
+    will-change: scroll-position;
+    /* Prevent all overflow */
+    overflow: hidden;
+  }
+
+  html {
+    /* Prevent all overflow at root level */
+    overflow: hidden;
+  }
+
+  video {
+    -webkit-transform: translateZ(0);
+    -moz-transform: translateZ(0);
+    -ms-transform: translateZ(0);
+    -o-transform: translateZ(0);
+    transform: translateZ(0);
+    -webkit-backface-visibility: hidden;
+    -moz-backface-visibility: hidden;
+    -ms-backface-visibility: hidden;
+    backface-visibility: hidden;
+    -webkit-perspective: 1000;
+    -moz-perspective: 1000;
+    -ms-perspective: 1000;
+    perspective: 1000;
+    /* Video specific optimizations */
+    will-change: transform;
+    contain: layout style paint;
+  }
+}
+
+/* Zayed's Café Design System - Warm coffee shop aesthetic
+All colors MUST be HSL.
+*/
+
+@layer base {
+  :root {
+    /* Café Color Palette */
+    --background: 31 44% 91%; /* Warm beige background */
+    --foreground: 18 25% 15%; /* Rich dark brown text */
+
+    --card: 35 55% 94%; /* Light cream cards */
+    --card-foreground: 18 25% 15%;
+
+    --popover: 35 55% 94%;
+    --popover-foreground: 18 25% 15%;
+
+    --primary: 18 35% 18%; /* Deep coffee brown */
+    --primary-foreground: 31 44% 91%;
+
+    --secondary: 25 35% 25%; /* Medium coffee brown */
+    --secondary-foreground: 31 44% 91%;
+
+    --muted: 28 25% 80%; /* Soft café latte */
+    --muted-foreground: 18 25% 35%;
+
+    --accent: 25 45% 35%; /* Rich espresso */
+    --accent-foreground: 31 44% 91%;
+
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 31 44% 91%;
+
+    --border: 28 20% 75%; /* Subtle café border */
+    --input: 28 20% 75%;
+    --ring: 18 35% 18%;
+
+    --radius: 0.75rem;
+
+    /* Café Specific Colors */
+    --cafe-warm: 31 44% 91%; /* Main warm beige */
+    --cafe-cream: 35 55% 94%; /* Light cream */
+    --cafe-latte: 28 25% 80%; /* Soft latte */
+    --cafe-espresso: 18 35% 18%; /* Deep coffee */
+    --cafe-mocha: 25 35% 25%; /* Medium brown */
+    --cafe-wood: 20 45% 30%; /* Wood accent */
+
+    /* Gradients */
+    --gradient-warm: linear-gradient(135deg, hsl(31 44% 91%), hsl(28 25% 80%));
+    --gradient-coffee: linear-gradient(135deg, hsl(25 35% 25%), hsl(18 35% 18%));
+    --gradient-cream: linear-gradient(180deg, hsl(35 55% 94%), hsl(31 44% 91%));
+
+    /* Shadows */
+    --shadow-warm: 0 4px 20px -2px hsl(18 35% 18% / 0.1);
+    --shadow-coffee: 0 8px 30px -5px hsl(18 35% 18% / 0.3);
+    --shadow-cozy: 0 2px 10px -1px hsl(25 35% 25% / 0.2);
+
+    /* Animations */
+    --transition-warm: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    --transition-bounce: all 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+
+    --sidebar-background: 31 44% 91%;
+    --sidebar-foreground: 18 25% 15%;
+    --sidebar-primary: 18 35% 18%;
+    --sidebar-primary-foreground: 31 44% 91%;
+    --sidebar-accent: 28 25% 80%;
+    --sidebar-accent-foreground: 18 25% 15%;
+    --sidebar-border: 28 20% 75%;
+    --sidebar-ring: 18 35% 18%;
+  }
+
+  .dark {
+    --background: 222.2 84% 4.9%;
+    --foreground: 210 40% 98%;
+
+    --card: 222.2 84% 4.9%;
+    --card-foreground: 210 40% 98%;
+
+    --popover: 222.2 84% 4.9%;
+    --popover-foreground: 210 40% 98%;
+
+    --primary: 210 40% 98%;
+    --primary-foreground: 222.2 47.4% 11.2%;
+
+    --secondary: 217.2 32.6% 17.5%;
+    --secondary-foreground: 210 40% 98%;
+
+    --muted: 217.2 32.6% 17.5%;
+    --muted-foreground: 215 20.2% 65.1%;
+
+    --accent: 217.2 32.6% 17.5%;
+    --accent-foreground: 210 40% 98%;
+
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 210 40% 98%;
+
+    --border: 217.2 32.6% 17.5%;
+    --input: 217.2 32.6% 17.5%;
+    --ring: 212.7 26.8% 83.9%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+  }
+}
