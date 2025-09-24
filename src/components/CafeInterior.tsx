@@ -598,7 +598,8 @@ const CafeInterior = memo(() => {
       }));
 
     } catch (error) {
-      console.error('Error sending message:', error);
+      // Log error for debugging (remove console.error for production)
+      // console.error('Error sending message:', error);
       
       // More detailed error message
       let errorMessage = "Something went wrong. Please try again or email me directly.";
