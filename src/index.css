@@ -211,3 +211,8 @@ All colors MUST be HSL.
     @apply bg-background text-foreground;
   }
 }
+
+/* Custom border width for thinking cloud */
+.border-3 {
+  border-width: 3px;
+}

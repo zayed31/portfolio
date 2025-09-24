@@ -2,6 +2,8 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useState, useEffect, useRef, useCallback, useMemo, useLayoutEffect, memo } from "react";
 import TextType from "./TextType";
 import MagicBento from "./MagicBento";
+import CloudyThinkingEffect from "./CloudyThinkingEffect";
+import { catEasterEggs } from "@/data/catEasterEggs";
 import interiorImage from "@/assets/cafe-interior.jpg";
 import secondInteriorImage from "@/assets/cafe-interior-chalkboard.jpg";
 import { Coffee } from "lucide-react";
@@ -389,6 +391,7 @@ const craftedProjects = [
 
 ];
 
+
 // Consolidated state interface for better performance
 interface AppState {
   phase: 'initial' | 'welcome' | 'transition' | 'portfolio';
@@ -399,6 +402,8 @@ interface AppState {
   expandedAchievement: string[];
   expandedProjectId?: string | null;
   showCat: boolean;
+  catEasterEggIndex: number;
+  showCatMessage: boolean;
   contactForm: {
     name: string;
     email: string;
@@ -417,6 +422,8 @@ const CafeInterior = memo(() => {
     expandedAchievement: [],
     expandedProjectId: null,
     showCat: false,
+    catEasterEggIndex: 0,
+    showCatMessage: false,
     contactForm: {
       name: "",
       email: "",
@@ -428,6 +435,7 @@ const CafeInterior = memo(() => {
 
   const videoRef = useRef<HTMLVideoElement>(null);
   const scrollTimeoutRef = useRef<number | null>(null);
+  const catMessageTimeoutRef = useRef<number | null>(null);
   const [tileRect, setTileRect] = useState<{ x: number; y: number; width: number; height: number } | null>(null);
   const [catImageLoaded, setCatImageLoaded] = useState(false);
 
@@ -452,9 +460,12 @@ const CafeInterior = memo(() => {
         };
       });
 
-      // Start transition sequence
+      // Show cat immediately when user enters
+      setState(prev => ({ ...prev, showCat: true }));
+      
+      // Start video transition sequence
       setTimeout(() => {
-        setState(prev => ({ ...prev, showVideo: true, showCat: true }));
+        setState(prev => ({ ...prev, showVideo: true }));
       }, 500);
       
       scrollTimeoutRef.current = null;
@@ -625,6 +636,35 @@ const CafeInterior = memo(() => {
     });
   }, []);
 
+  // Handle cat easter egg click
+  const handleCatClick = useCallback(() => {
+    // Clear any existing timeout to reset the timer
+    if (catMessageTimeoutRef.current) {
+      clearTimeout(catMessageTimeoutRef.current);
+      catMessageTimeoutRef.current = null;
+    }
+
+    setState(prev => {
+      // Generate random index, ensuring it's different from current one
+      let randomIndex;
+      do {
+        randomIndex = Math.floor(Math.random() * catEasterEggs.length);
+      } while (randomIndex === prev.catEasterEggIndex && catEasterEggs.length > 1);
+      
+      return {
+        ...prev,
+        catEasterEggIndex: randomIndex,
+        showCatMessage: true
+      };
+    });
+
+    // Hide message after 7 seconds (timer resets on each click)
+    catMessageTimeoutRef.current = window.setTimeout(() => {
+      setState(prev => ({ ...prev, showCatMessage: false }));
+      catMessageTimeoutRef.current = null;
+    }, 7000);
+  }, []);
+
   // Prevent body scroll when expanded
   useLayoutEffect(() => {
     if (state.expandedTile) {
@@ -698,6 +738,16 @@ const CafeInterior = memo(() => {
       return () => clearTimeout(cleanupTimer);
     }
   }, [state.phase]);
+
+  // Cleanup cat message timeout on unmount
+  useEffect(() => {
+    return () => {
+      if (catMessageTimeoutRef.current) {
+        clearTimeout(catMessageTimeoutRef.current);
+        catMessageTimeoutRef.current = null;
+      }
+    };
+  }, []);
 
   // Optimized scroll listeners
   useEffect(() => {
@@ -871,7 +921,7 @@ const CafeInterior = memo(() => {
       {/* Cool Cat - Persists after video ends */}
       {state.showCat && (
         <motion.div
-          className="absolute pointer-events-none"
+          className="absolute cursor-pointer"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 1, delay: 0.5 }}
@@ -881,8 +931,10 @@ const CafeInterior = memo(() => {
             zIndex: 25,
             width: '200px',
             height: '200px'
-
           }}
+          onClick={handleCatClick}
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
         >
           {catImageLoaded ? (
             <img
@@ -906,6 +958,26 @@ const CafeInterior = memo(() => {
               🐱
             </div>
           )}
+
+          {/* Thinking Cloud Effect */}
+          <AnimatePresence>
+            {state.showCatMessage && (
+              <div
+                className="absolute"
+                style={{ 
+                  zIndex: 30,
+                  bottom: '135px',    // Y-axis: Adjust this value to move up/down
+                  right: '50px'       // X-axis: Adjust this value to move left/right
+                }}
+              >
+                <CloudyThinkingEffect
+                  message={catEasterEggs[state.catEasterEggIndex].message}
+                  emoji={catEasterEggs[state.catEasterEggIndex].image}
+                  isVisible={state.showCatMessage}
+                />
+              </div>
+            )}
+          </AnimatePresence>
         </motion.div>
       )}
 
