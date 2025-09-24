@@ -133,6 +133,31 @@
   .card {
     width: 100%;
     min-height: 140px;
+    /* Disable heavy effects on mobile */
+    will-change: auto;
+    backface-visibility: visible;
+    transform: none;
+    contain: none;
+  }
+
+  .card:hover {
+    /* Simplified hover for mobile */
+    transform: none;
+    box-shadow: 0 4px 15px rgba(44, 31, 26, 0.2);
+  }
+
+  /* Disable border glow on mobile */
+  .card--border-glow::after {
+    display: none;
+  }
+
+  /* Disable particle effects on mobile */
+  .particle::before {
+    display: none;
+  }
+
+  .particle-container:hover {
+    box-shadow: none;
   }
 }
 

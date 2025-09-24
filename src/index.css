@@ -14,6 +14,17 @@
     backface-visibility: hidden;
   }
 
+  /* Mobile-specific optimizations */
+  @media (max-width: 768px) {
+    * {
+      /* Reduce hardware acceleration on mobile for better performance */
+      -webkit-transform: none;
+      transform: none;
+      -webkit-backface-visibility: visible;
+      backface-visibility: visible;
+    }
+  }
+
   body {
     /* Optimize scrolling performance */
     -webkit-overflow-scrolling: touch;
@@ -31,6 +42,18 @@
     overflow: hidden;
   }
 
+  /* Mobile body optimizations */
+  @media (max-width: 768px) {
+    body {
+      /* Reduce will-change on mobile */
+      will-change: auto;
+      /* Optimize for mobile scrolling */
+      -webkit-overflow-scrolling: touch;
+      /* Reduce text rendering optimization for better performance */
+      text-rendering: auto;
+    }
+  }
+
   /* Coffee cursor (normal + click tilt). Place icons in /public
      e.g., /coffee-cursor.png and /coffee-cursor-tilt.png */
   body.coffee-cursor {
@@ -46,6 +69,16 @@
   }
   body.coffee-cursor.cursor-active * {
     cursor: url('/coffee-cursor-tilt.png') 16 16, auto !important;
+  }
+
+  /* Disable custom cursor on mobile for better performance */
+  @media (max-width: 768px) {
+    body.coffee-cursor,
+    body.coffee-cursor *,
+    body.coffee-cursor.cursor-active,
+    body.coffee-cursor.cursor-active * {
+      cursor: auto !important;
+    }
   }
 
   html {

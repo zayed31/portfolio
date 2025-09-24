@@ -44,6 +44,23 @@ const DEFAULT_SPOTLIGHT_RADIUS = 300;
 const DEFAULT_GLOW_COLOR = '230, 180, 102'; // Café warm color
 const MOBILE_BREAKPOINT = 768;
 
+// Mobile detection hook
+const useMobile = () => {
+  const [isMobile, setIsMobile] = useState(false);
+  
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < MOBILE_BREAKPOINT);
+    };
+    
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
+  
+  return isMobile;
+};
+
 const cardData = [
   {
     color: 'linear-gradient(135deg, #F5E9C6 0%, #E6B566 100%)', // Beige gradient

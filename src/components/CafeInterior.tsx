@@ -9,6 +9,7 @@ import secondInteriorImage from "@/assets/cafe-interior-chalkboard.jpg";
 import { Coffee } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import emailjs from '@emailjs/browser';
+import { useIsMobile } from "@/hooks/use-mobile";
 
 // Portfolio sections data for modal content
 const portfolioSections = [
@@ -412,6 +413,9 @@ interface AppState {
 }
 
 const CafeInterior = memo(() => {
+  // Mobile detection for performance optimization
+  const isMobile = useIsMobile();
+  
   // Consolidated state to reduce re-renders
   const [state, setState] = useState<AppState>({
     phase: 'initial',
@@ -908,7 +912,7 @@ const CafeInterior = memo(() => {
             playsInline
             onEnded={handleVideoEnd}
             style={{
-              willChange: 'transform',
+              willChange: isMobile ? 'auto' : 'transform',
               backfaceVisibility: 'hidden',
               transform: 'translateZ(0)'
             }}
@@ -934,7 +938,7 @@ const CafeInterior = memo(() => {
             height: '200px'
           }}
           onClick={handleCatClick}
-          whileHover={{ scale: 1.05 }}
+          whileHover={isMobile ? {} : { scale: 1.05 }}
           whileTap={{ scale: 0.95 }}
         >
           {catImageLoaded ? (
@@ -1000,7 +1004,7 @@ const CafeInterior = memo(() => {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -20 }}
-            transition={{ duration: 0.5 }}
+            transition={{ duration: isMobile ? 0.3 : 0.5 }}
             className="absolute inset-0 flex items-center justify-center z-30"
           >
             <div className="text-center bg-cafe-cream p-8 rounded-2xl shadow-lg border-2 border-cafe-latte/50 max-w-2xl mx-4">
@@ -1074,21 +1078,21 @@ const CafeInterior = memo(() => {
             initial={{ opacity: 0, y: 50 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ 
-              duration: 0.8, 
+              duration: isMobile ? 0.4 : 0.8, 
               ease: "easeOut",
-              delay: 0.3
+              delay: isMobile ? 0.1 : 0.3
             }}
           >
             <MagicBento 
               textAutoHide={true}
-              enableStars={true}
-              enableSpotlight={true}
-              enableBorderGlow={true}
-              enableTilt={true}
-              enableMagnetism={true}
+              enableStars={!isMobile}
+              enableSpotlight={!isMobile}
+              enableBorderGlow={!isMobile}
+              enableTilt={!isMobile}
+              enableMagnetism={!isMobile}
               clickEffect={true}
-              spotlightRadius={300}
-              particleCount={12}
+              spotlightRadius={isMobile ? 150 : 300}
+              particleCount={isMobile ? 4 : 12}
               glowColor="230, 180, 102"
               onCardClick={handleTileClick}
             />
