@@ -118,6 +118,10 @@ const portfolioSections = [
           description: "Hackathons, competitions, and events",
           type: "participation",
           items: [
+            {       
+              name: "HACKFUSION 1.0 Winner - MIT Mysore",
+              link: "https://drive.google.com/file/d/1vpwP413LdPN4LD-kxezmLJRiFKkOs42E/view?usp=sharing"
+            },
             {
               name: "Sigma Ideathon Winner, MIT Tandavpura",
               link: "https://drive.google.com/file/d/1hI8PIVobxeSzyjx4yRRcG87-137RD5QN/view?usp=drive_link"
@@ -189,10 +193,10 @@ const portfolioSections = [
         "Integrated enterprise-grade tools, improving deployment turnaround and reliability",
         "Contributed to code reviews, testing, and continuous improvement"
       ],
-      certificates: [
-        { name: "Internship Certificate", link: "https://drive.google.com/file/d/1kCBLUrCnilkNFUtZsP5vkOwGWP3U5AyT/view?usp=sharing" },
-        { name: "Training Certificate", link: "https://drive.google.com/file/d/15ZXTP3k5pksYcMuRonH6r_47SbNKcSJZ/view?usp=drive_link" }
-      ]
+        certificates: [
+          { name: "Internship Certificate", link: "https://drive.google.com/file/d/1kCBLUrCnilkNFUtZsP5vkOwGWP3U5AyT/view?usp=sharing" },
+          { name: "Training Certificate", link: "https://drive.google.com/file/d/15ZXTP3k5pksYcMuRonH6r_47SbNKcSJZ/view?usp=drive_link" },
+        ]
     }
   },
 
