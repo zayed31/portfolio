@@ -1,7 +1,6 @@
 import { motion, AnimatePresence } from "framer-motion";
-import { useState, useEffect, useRef, useCallback, useMemo, useLayoutEffect, memo } from "react";
+import { useState, useEffect, useRef, useCallback, useMemo, useLayoutEffect, memo, lazy, Suspense } from "react";
 import TextType from "./TextType";
-import MagicBento from "./MagicBento";
 import CloudyThinkingEffect from "./CloudyThinkingEffect";
 import { catEasterEggs } from "@/data/catEasterEggs";
 import interiorImage from "@/assets/cafe-interior.jpg";
@@ -10,6 +9,9 @@ import { Coffee } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import emailjs from '@emailjs/browser';
 import { useIsMobile } from "@/hooks/use-mobile";
+
+// Lazy load heavy components to reduce initial bundle size
+const MagicBento = lazy(() => import("./MagicBento"));
 
 // Portfolio sections data for modal content
 const portfolioSections = [
@@ -420,6 +422,67 @@ const CafeInterior = memo(() => {
   // Mobile detection for performance optimization
   const isMobile = useIsMobile();
   
+  // Performance monitoring and adaptive quality
+  const [performanceLevel, setPerformanceLevel] = useState<'high' | 'medium' | 'low'>('high');
+  const [isLowEndDevice, setIsLowEndDevice] = useState(false);
+  
+  // Performance detection based on device capabilities
+  const detectPerformanceLevel = useCallback(() => {
+    const canvas = document.createElement('canvas');
+    const gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
+    
+    // Check hardware capabilities
+    const memory = (navigator as any).deviceMemory || 4; // Default to 4GB if not available
+    const cores = navigator.hardwareConcurrency || 4;
+    const connection = (navigator as any).connection;
+    const effectiveType = connection?.effectiveType || '4g';
+    
+    // Performance scoring
+    let score = 0;
+    
+    // Memory check (0-3 points)
+    if (memory >= 8) score += 3;
+    else if (memory >= 4) score += 2;
+    else if (memory >= 2) score += 1;
+    
+    // CPU cores (0-2 points)
+    if (cores >= 8) score += 2;
+    else if (cores >= 4) score += 1;
+    
+    // Network speed (0-2 points)
+    if (effectiveType === '4g') score += 2;
+    else if (effectiveType === '3g') score += 1;
+    
+    // WebGL support (0-2 points)
+    if (gl) {
+      try {
+        const renderer = (gl as WebGLRenderingContext).getParameter((gl as WebGLRenderingContext).RENDERER);
+        if (renderer && !renderer.includes('Software')) score += 2;
+        else score += 1;
+      } catch (error) {
+        // WebGL available but getParameter failed
+        score += 1;
+      }
+    }
+    
+    // Mobile penalty
+    if (isMobile) score -= 1;
+    
+    // Determine performance level
+    if (score >= 6) {
+      setPerformanceLevel('high');
+      setIsLowEndDevice(false);
+    } else if (score >= 3) {
+      setPerformanceLevel('medium');
+      setIsLowEndDevice(false);
+    } else {
+      setPerformanceLevel('low');
+      setIsLowEndDevice(true);
+    }
+    
+    console.log(`🎯 Performance Level: ${performanceLevel} (Score: ${score})`);
+  }, [isMobile, performanceLevel]);
+  
   // Consolidated state to reduce re-renders
   const [state, setState] = useState<AppState>({
     phase: 'initial',
@@ -699,6 +762,11 @@ const CafeInterior = memo(() => {
     img.src = '/Cool-Cat.png';
   }, []);
 
+  // Performance detection on mount
+  useEffect(() => {
+    detectPerformanceLevel();
+  }, [detectPerformanceLevel]);
+
   // Initial welcome sequence
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -915,10 +983,13 @@ const CafeInterior = memo(() => {
             muted
             playsInline
             onEnded={handleVideoEnd}
+            preload={performanceLevel === 'high' ? 'auto' : 'metadata'}
             style={{
-              willChange: isMobile ? 'auto' : 'transform',
+              willChange: performanceLevel === 'high' ? 'transform' : 'auto',
               backfaceVisibility: 'hidden',
-              transform: 'translateZ(0)'
+              transform: 'translateZ(0)',
+              // Reduce quality on low-end devices
+              filter: performanceLevel === 'low' ? 'brightness(0.9) contrast(1.1)' : 'none'
             }}
           >
             <source src="/chalkboard-zoom.mp4" type="video/mp4" />
@@ -1087,19 +1158,28 @@ const CafeInterior = memo(() => {
               delay: isMobile ? 0.1 : 0.3
             }}
           >
-            <MagicBento 
-              textAutoHide={true}
-              enableStars={!isMobile}
-              enableSpotlight={!isMobile}
-              enableBorderGlow={!isMobile}
-              enableTilt={!isMobile}
-              enableMagnetism={!isMobile}
+            <Suspense fallback={
+              <div className="flex items-center justify-center h-full">
+                <div className="text-center">
+                  <div className="w-8 h-8 border-2 border-cafe-espresso/20 border-t-cafe-espresso rounded-full animate-spin mx-auto mb-4"></div>
+                  <p className="text-cafe-espresso/60 font-chalkboard">Loading portfolio...</p>
+                </div>
+              </div>
+            }>
+              <MagicBento 
+                textAutoHide={true}
+                enableStars={!isMobile && performanceLevel !== 'low'}
+                enableSpotlight={!isMobile && performanceLevel === 'high'}
+                enableBorderGlow={!isMobile && performanceLevel !== 'low'}
+                enableTilt={!isMobile && performanceLevel !== 'low'}
+                enableMagnetism={!isMobile && performanceLevel === 'high'}
               clickEffect={true}
               spotlightRadius={isMobile ? 150 : 300}
               particleCount={isMobile ? 4 : 12}
               glowColor="230, 180, 102"
               onCardClick={handleTileClick}
             />
+            </Suspense>
           </motion.div>
 
         </div>
